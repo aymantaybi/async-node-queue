@@ -12,7 +12,7 @@ let intervalId = setInterval(() => {
 setTimeout(() => {
   clearInterval(intervalId);
   queue.stop();
-  queue.reset();
+ // queue.reset();
   console.log("Stop");
 }, 20000);
 
