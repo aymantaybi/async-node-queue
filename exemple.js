@@ -1,27 +1,29 @@
-const Queue = require('./index');
+const Queue = require("./index");
 
-const queue = new Queue({ auto: true, limit: 10, overwrite: true });
+const queue = new Queue({ auto: true });
 
 let index = 0;
 
-setTimeout(() => {
-    queue.stop();
-}, 20000)
+let intervalId = setInterval(() => {
+  index++;
+  queue.add(test, [index]);
+}, 1000);
 
-setInterval(() => {
-    if (index == 10) return;
-    index++;
-    queue.add(test, [index]);
-}, 3000)
+setTimeout(() => {
+  clearInterval(intervalId);
+  queue.stop();
+  queue.reset();
+  console.log("Stop");
+}, 20000);
 
 async function test(num) {
-    await sleep(5000);
-    console.log(num);
-    console.log(queue.items);
+  await sleep(2000);
+  console.log(num);
+  console.log(queue.items);
 }
 
 function sleep(ms) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, ms);
-    });
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }

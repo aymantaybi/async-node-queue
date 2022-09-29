@@ -1,5 +1,4 @@
 const createControlledAsync = require('controlled-async');
-const { isObject } = require('./utils');
 
 class Queue {
 
@@ -13,25 +12,25 @@ class Queue {
 
     async iterate() {
         if (!this.items[0]) { this.started = false; return };
-        let { func, params } = this.items[0];
-        if (func instanceof Function) {
-            let [controlledFunc, funcController] = createControlledAsync(func);
-            this.controller = funcController;
-            let result = await controlledFunc(...params);
-            if (isObject(result) && result.canceled) { this.started = false; return };
+        let { task, params } = this.items[0];
+        if (task instanceof Function) {
+            let [controlledFunction, functionController] = createControlledAsync(task);
+            this.controller = functionController;
+            let result = await controlledFunction(...params);
+            if (result?.queueTaskCanceled) { this.started = false; return };
         }
         this.items = this.items.slice(1);
         this.iterate();
     }
 
-    add(func, params) {
+    add(task, params) {
 
         let currentIndex = this.getCurrentIndex();
         let index = currentIndex + 1;
 
         if (this.limit != 0 && this.items.length == this.limit && !this.overwrite) return;
-        if (this.limit != 0 && this.items.length == this.limit && this.overwrite) this.items[this.limit - 1] = { func, params, index };
-        if (this.limit == 0 || this.items.length != this.limit) this.items.push({ func, params, index });
+        if (this.limit != 0 && this.items.length == this.limit && this.overwrite) this.items[this.limit - 1] = { task, params, index };
+        if (this.limit == 0 || this.items.length != this.limit) this.items.push({ task, params, index });
 
         if (this.auto) this.start();
     }
@@ -43,7 +42,7 @@ class Queue {
     }
 
     stop() {
-        this.controller.resolve({ canceled: true });
+        this.controller.resolve({ queueTaskCanceled: true });
     }
 
     reset() {
