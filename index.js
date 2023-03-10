@@ -1,4 +1,4 @@
-const createControlledAsync = require("controlled-async");
+const { createControlledAsync } = require("controlled-async");
 
 class Queue {
   constructor({ auto = false, limit = 0, overwrite = false }) {
@@ -16,8 +16,7 @@ class Queue {
     }
     let { task, params } = this.items[0];
     if (task instanceof Function) {
-      let [controlledFunction, functionController] =
-        createControlledAsync(task);
+      let [controlledFunction, functionController] = createControlledAsync(task);
       this.controller = functionController;
       let result = await controlledFunction(...params);
       if (result?.queueTaskCanceled) {
@@ -34,12 +33,9 @@ class Queue {
     let currentIndex = this.getCurrentIndex();
     let index = currentIndex + 1;
 
-    if (this.limit != 0 && this.items.length == this.limit && !this.overwrite)
-      return;
-    if (this.limit != 0 && this.items.length == this.limit && this.overwrite)
-      this.items[this.limit - 1] = { task, params, index };
-    if (this.limit == 0 || this.items.length != this.limit)
-      this.items.push({ task, params, index });
+    if (this.limit != 0 && this.items.length == this.limit && !this.overwrite) return;
+    if (this.limit != 0 && this.items.length == this.limit && this.overwrite) this.items[this.limit - 1] = { task, params, index };
+    if (this.limit == 0 || this.items.length != this.limit) this.items.push({ task, params, index });
 
     if (this.auto) this.start();
   }
